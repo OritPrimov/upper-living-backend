@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPPER</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
+    h1 { color: #222; }
+  </style>
+</head>
+<body>
+  <h1>ברוכים הבאים ל-UPPER</h1>
+  <p id="status">בודק חיבור לשרת...</p>
+  <script>
+    fetch('/api/health')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('status').textContent = 'השרת פעיל: ' + data.status;
+      })
+      .catch(() => {
+        document.getElementById('status').textContent = 'לא ניתן להתחבר לשרת';
+      });
+  </script>
+</body>
+</html>
