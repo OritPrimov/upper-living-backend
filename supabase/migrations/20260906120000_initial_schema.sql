@@ -209,7 +209,7 @@ create table poll_votes (
 -- =====================================================================
 
 create table activity_events (
-  id bigserial primary key,
+  id bigserial not null,
   community_id uuid not null,
   resident_id uuid,
   event_type text not null, -- 'post_created' | 'event_rsvp' | 'group_joined' |
@@ -217,7 +217,9 @@ create table activity_events (
                              -- 'vendor_viewed' | 'vendor_contacted' | 'deal_viewed' |
                              -- 'deal_redeemed' | 'vendor_search' | ...
   metadata jsonb not null default '{}',
-  occurred_at timestamptz not null default now()
+  occurred_at timestamptz not null default now(),
+  -- Postgres requires the partition key in any primary key on a partitioned table
+  primary key (id, occurred_at)
 ) partition by range (occurred_at);
 
 -- monthly partitions — a scheduled job (pg_cron) should create future ones
@@ -520,7 +522,7 @@ create table staff_users (
 
 -- dedicated, append-only security audit log (actor_type includes ai_agent per 17.4)
 create table security_audit_log (
-  id bigserial primary key,
+  id bigserial not null,
   actor_type text not null check (actor_type in ('resident','staff','ai_agent','system')),
   actor_id uuid,
   action text not null, -- 'vendor_approved' / 'role_changed' / 'document_distributed' / ...
@@ -528,7 +530,8 @@ create table security_audit_log (
   target_id uuid,
   metadata jsonb not null default '{}',
   ip_address inet,
-  occurred_at timestamptz not null default now()
+  occurred_at timestamptz not null default now(),
+  primary key (id, occurred_at)
 ) partition by range (occurred_at);
 
 create table security_audit_log_2026_09 partition of security_audit_log
